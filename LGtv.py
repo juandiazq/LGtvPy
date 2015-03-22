@@ -191,3 +191,9 @@ class LGtv:
         if level > 64 or level < 0:
             raise ValueError
         return self.__sendCmd('mg %s %02X\r' % (self.id, level))
+
+    def setChannelDTV(self, channelNo):
+        """Set the channel"""
+        if channelNo > 0x3E7 or channelNo <= 0:
+            raise ValueError
+    	return self.__sendCmd('ma %s %02X %02X %02X\r' % (self.id, ((channelNo & 0xff00) >> 8), (channelNo & 0x00ff), 0x10))
