@@ -50,22 +50,26 @@ class LGtv:
     def __init__(self, serialport, id=1):
         self.id = "%02X" % id
         self.ser = serial.Serial(serialport, 9600, timeout=1)
-    	""" Variable to store the current status """
-	self.currentVolume = -1
-	self.currentChannel = -1
+        """ Variable to store the current status """
+        self.currentVolume = -1
+        self.currentChannel = -1
 
     def __sendCmd(self, cmd):
         self.ser.flushInput()
-        self.ser.write(cmd)
-        read = self.ser.readline()
+        self.ser.write(cmd.encode())
+        read = self.ser.readline().decode('utf-8')
         return read.find("OK") > 0
 
     def __getMsg(self, cmd):
         self.ser.flushInput()
-        self.ser.write(cmd)
-        ret = self.ser.readline()
+        self.ser.write(cmd.encode())
+        ret = self.ser.readline().decode('utf-8')
         retdata = re.compile(r'(OK|NG)(.*)x')
-        return re.findall(retdata, ret)[0][1]
+        try:
+            result = re.findall(retdata, ret)[0][1]
+        except:
+            result = ""
+        return result
 
     def powerOff(self):
         """Turn the TV off"""
@@ -111,7 +115,7 @@ class LGtv:
         """Set the volume, must be a level between 0 and 64"""
         if level > 64 or level < 0:
             raise ValueError
-    	self.currentVolume = level
+        self.currentVolume = level
         return self.__sendCmd('kf %s %02X\r' % (self.id, level))
 
     def setContrast(self, level):
@@ -200,5 +204,5 @@ class LGtv:
         """Set the channel"""
         if channelNo > 0x3E7 or channelNo <= 0:
             raise ValueError
-    	self.currentChannel = channelNo
-    	return self.__sendCmd('ma %s %02X %02X %02X\r' % (self.id, ((channelNo & 0xff00) >> 8), (channelNo & 0x00ff), 0x10))
+        self.currentChannel = channelNo
+        return self.__sendCmd('ma %s %02X %02X %02X\r' % (self.id, ((channelNo & 0xff00) >> 8), (channelNo & 0x00ff), 0x10))

@@ -3,7 +3,8 @@
 import LGtv
 
 tv = LGtv.LGtv('/dev/ttyUSB0')
-print tv.isOn()
+print(tv.isOn())
 if tv.isOn():
-	tv.powerOff()
+    tv.powerOff()
+    print("Estaba encendida la tele\n")
 
